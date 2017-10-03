@@ -1,0 +1,581 @@
+import pygame
+import time
+import random
+
+x = pygame.init()
+print(x)
+
+white = (255,255,255)
+black = (0,0,0)
+green = (0,255,0)
+darkgreen = (0,155,0)
+red = (255,0,0)
+blue = (0,0,255)
+
+display_width = 800
+display_height = 600
+
+gamedis = pygame.display.set_mode((display_width,display_height))
+pygame.display.set_caption("Anaconda")
+
+sGameExit = False
+mGameExit = False
+aiExit = False
+
+clock = pygame.time.Clock()
+
+lead_x = display_width/2
+lead_y = display_height/2
+lead_x_change = 0
+lead_y_change = 0
+
+lead_x1 = display_width/2
+lead_y1 = display_height/2
+lead_x_change1 = 0
+lead_y_change1 = 0
+
+block_size = 10
+FPS = 25
+
+
+img1 = pygame.image.load("s_head1.png")
+img2 = pygame.image.load("s_head2.png")
+img3 = pygame.image.load("apple.png")
+
+icon = pygame.image.load("icon.png")
+pygame.display.set_icon(icon)
+
+font = pygame.font.SysFont(None, 25)
+font1 = pygame.font.SysFont(None, 75)
+direction = ("up")
+direction1 = ("up")
+
+def snake(block_size, snakelist):
+
+    if (direction == "right"):
+        head = pygame.transform.rotate(img1, 270)
+    elif (direction == "left"):
+        head = pygame.transform.rotate(img1, 90)
+    elif (direction == "up"):
+        head = img1
+    elif (direction == "down"):
+        head = pygame.transform.rotate(img1, 180)
+
+    gamedis.blit(head, (snakelist[-1][0], snakelist[-1][1]))
+    
+    for XnY in snakelist[:-1]:
+        pygame.draw.rect(gamedis, green, [XnY[0],XnY[1],block_size,block_size])
+
+def snake1(block_size, snakelist1):
+    
+    if (direction1 == "right"):
+        head = pygame.transform.rotate(img2, 270)
+    elif (direction1 == "left"):
+        head = pygame.transform.rotate(img2, 90)
+    elif (direction1 == "up"):
+        head = img2
+    elif (direction1 == "down"):
+        head = pygame.transform.rotate(img2, 180)
+
+    gamedis.blit(head,(snakelist1[-1][0], snakelist1[-1][1]))
+    for XnY in snakelist1[:-1]:
+        pygame.draw.rect(gamedis, blue, [XnY[0],XnY[1],block_size,block_size])
+    
+def pause():
+    paused = True
+
+    while paused:
+        for event in pygame.event.get():
+            if (event.type == pygame.QUIT):
+                pygame.quit()
+                quit()
+            if (event.type == pygame.KEYDOWN):
+                if (event.key == pygame.K_z):
+                    paused = False
+        gamedis.fill(white)
+        message_to_screen_large("PAUSED", black, 400, 300)
+        pygame.display.update()
+        clock.tick(5)
+
+def text_objects(msg,colour):
+    textSurface = font.render(msg, True, colour)
+    return textSurface, textSurface.get_rect()
+
+def message_to_screen(msg, colour, x, y):
+    textSurf, textRect = text_objects(msg,colour)
+    textRect.center = x,y
+    gamedis.blit(textSurf, textRect)
+    #screen_text = font.render(msg, True , colour)
+    #gamedis.blit(screen_text, [display_width/2, display_height/2])
+
+def text_objects_large(msg,colour):
+    textSurface = font1.render(msg, True, colour)
+    return textSurface, textSurface.get_rect()
+
+def message_to_screen_large(msg, colour, x, y):
+    textSurf, textRect = text_objects_large(msg,colour)
+    textRect.center = x,y
+    gamedis.blit(textSurf, textRect)
+
+                
+
+def gameLoop():
+
+    global direction
+    global direction1
+    
+    pygame.mixer.music.load('snake_music.mp3')
+    pygame.mixer.music.play(-1)
+    
+    p1speed = 10
+    p2speed = 10
+    FPS = 30
+    score = 0
+    score1 = 0
+    gameOver = False
+    lead_x = display_width/2
+    lead_y = display_height/2
+    lead_x_change = 0
+    lead_y_change = 0
+    
+    lead_x1 = (display_width/2) + 20
+    lead_y1 = (display_height/2)
+    lead_x_change1 = 0
+    lead_y_change1 = 0
+    
+    player1Dead = 0
+    player2Dead = 0
+
+    randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
+    randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
+
+    snakelist = []   #p1
+    snakelength = 1
+
+    snakelist1 = []   #p2
+    snakelength1 = 1
+
+    menuExit = False
+
+    while (menuExit == False):
+        gamedis.fill(white)
+        message_to_screen_large("Anaconda", green, 400, 200)
+        message_to_screen("""Singleplayer (1)      AI (2)      Multiplayer (3)      Quit(4)""", black, 400, 400)
+
+        pygame.display.update()
+        for event in pygame.event.get():
+            if (event.type == pygame.QUIT):
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_4:
+                    pygame.quit()
+                    quit()
+                elif event.key == pygame.K_3:
+                    aiExit = True
+                    mGameExit = False
+                    menuExit = True
+                    sGameExit = True
+                elif event.key == pygame.K_2:
+                    aiExit = False
+                    mGameExit = True
+                    menuExit = True
+                    sGameExit = True
+                elif event.key == pygame.K_1:
+                    aiExit = True
+                    sGameExit = False
+                    menuExit = True
+                    mGameExit = True
+
+
+    while not aiExit:
+        FPS =  60
+        while (gameOver == True):
+
+            gamedis.fill(white)
+            message_to_screen_large("Game Over", red, 400, 200)
+            message_to_screen("Press C to restart or Q to exit", red, 400, 300)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if (event.type == pygame.QUIT):
+                    pygame.quit()
+                    quit()
+                if (event.type == pygame.KEYDOWN):
+                    if (event.key == pygame.K_q):
+                        sGameExit = True
+                        gameOver = False
+                    if(event.key == pygame.K_c):
+                        gameLoop()
+        
+
+        if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):
+            gameOver = True
+            
+        lead_x += lead_x_change
+        lead_y += lead_y_change
+        gamedis.fill(white) 
+        gamedis.blit(img3, [randAppleX, randAppleY])
+
+        if ((lead_y - randAppleY) > 0):
+            direction = "up"
+            lead_x_change = 0
+            lead_y_change = -10
+
+        elif (lead_y == randAppleY):
+
+            if ((lead_x - randAppleX) > 0):
+                lead_y_change = 0
+                direction = "left"
+                lead_x_change = -10
+
+            elif ((lead_x - randAppleX) < 0):
+                lead_y_change = 0
+                direction = "right"
+                lead_x_change = 10
+
+        elif ((lead_y - randAppleY) < 0):
+            direction = "down"
+            lead_x_change = 0
+            lead_y_change = 10
+
+        elif (lead_y == randAppleY):
+
+            if ((lead_x - randAppleX) > 0):
+                lead_y_change = 0
+                direction = "left"
+                lead_x_change = -10
+
+            elif ((lead_x - randAppleX) < 0):
+                lead_y_change = 0
+                direction = "right"
+                lead_x_change = 10
+        
+
+        snakehead = []
+        snakehead.append(lead_x)
+        snakehead.append(lead_y)
+        snakelist.append(snakehead)
+
+        if (len(snakelist) > snakelength):
+            del snakelist[0]
+
+        for eachSegment in snakelist[:-1]:
+            if (eachSegment == snakehead):
+                gameOver = True
+
+        snake(block_size, snakelist)
+         
+        pygame.display.update()
+
+        if (lead_x == randAppleX and lead_y == randAppleY):
+            
+            randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
+            randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
+            snakelength += 1
+            score += 1
+            FPS += 1
+            
+
+        txtScore = str(score)
+        screen_text = font.render("Score: ", True , darkgreen)
+        gamedis.blit(screen_text, [10, 10 ])
+        screen_text = font.render(txtScore, True , darkgreen)
+        gamedis.blit(screen_text, [50, 50])
+        pygame.display.update()
+
+        clock.tick(FPS)
+
+
+
+
+    
+    while (not sGameExit):
+
+
+        while (gameOver == True):
+            gamedis.fill(white)
+            message_to_screen_large("Game Over", red, 400, 200)
+            message_to_screen("Press C to restart or Q to exit", red, 400, 300)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if (event.type == pygame.QUIT):
+                    pygame.quit()
+                    quit()
+                if (event.type == pygame.KEYDOWN):
+                    if (event.key == pygame.K_q):
+                        sGameExit = True
+                        gameOver = False
+                    if(event.key == pygame.K_c):
+                        gameLoop()
+                    
+        for event in pygame.event.get():
+            if (event.type == pygame.QUIT):
+                pygame.quit()
+                quit()
+
+            if (event.type == pygame.KEYDOWN):
+                if (event.key == pygame.K_LEFT):
+                    lead_x_change = -block_size
+                    lead_y_change = 0
+                    direction = "left"
+                elif (event.key == pygame.K_RIGHT):
+                    lead_x_change = block_size
+                    lead_y_change = 0
+                    direction = "right"
+                elif(event.key == pygame.K_UP):
+                    lead_y_change = -block_size
+                    lead_x_change = 0
+                    direction = "up"
+                elif(event.key == pygame.K_DOWN):
+                    lead_y_change = block_size
+                    lead_x_change = 0
+                    direction = "down"
+                elif(event.key == pygame.K_SPACE):
+                    pause()
+                
+                    
+                
+     
+        if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):
+            gameOver = True
+            
+        lead_x += lead_x_change
+        lead_y += lead_y_change
+        gamedis.fill(white) 
+        gamedis.blit(img3, [randAppleX, randAppleY])
+
+        snakehead = []
+        snakehead.append(lead_x)
+        snakehead.append(lead_y)
+        snakelist.append(snakehead)
+
+        if (len(snakelist) > snakelength):
+            del snakelist[0]
+
+        for eachSegment in snakelist[:-1]:
+            if (eachSegment == snakehead):
+                gameOver = True
+
+        snake(block_size, snakelist)
+         
+        pygame.display.update()
+
+        if (lead_x == randAppleX and lead_y == randAppleY):
+            
+            randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
+            randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
+            snakelength += 1
+            score += 1
+            FPS += 1
+            
+
+        txtScore = str(score)
+        screen_text = font.render("Score: ", True , darkgreen)
+        gamedis.blit(screen_text, [10, 10 ])
+        screen_text = font.render(txtScore, True , darkgreen)
+        gamedis.blit(screen_text, [50, 50])
+        pygame.display.update()
+
+        clock.tick(FPS)
+        
+
+    while (not mGameExit): ###############################################################
+        
+        while (gameOver == True):
+            gamedis.fill(white)
+            message_to_screen_large("Game Over", red, 400, 200)
+            message_to_screen("Press C to restart or Q to exit", red, 400, 300)
+            pygame.display.update()
+
+            for event in pygame.event.get():
+                if (event.type == pygame.KEYDOWN):
+                    if (event.key == pygame.K_q):
+                        mGameExit = True
+                        gameOver = False
+                    if(event.key == pygame.K_c):
+                        gameLoop()
+                    
+        for event in pygame.event.get():
+            if (event.type == pygame.QUIT):
+                gameExit = True
+
+            if (event.type == pygame.KEYDOWN):     #p1
+                if (event.key == pygame.K_LEFT):
+                    direction = "left"
+                    lead_x_change = -10
+                    lead_y_change = 0
+                elif (event.key == pygame.K_RIGHT):
+                    direction = "right"
+                    lead_x_change = 10
+                    lead_y_change = 0
+                elif(event.key == pygame.K_UP):
+                    direction = "up"
+                    lead_y_change = -10
+                    lead_x_change = 0
+                elif(event.key == pygame.K_DOWN):
+                    direction = "down"
+                    lead_y_change = 10
+                    lead_x_change = 0
+
+                elif (event.key == pygame.K_a): #p2
+                    direction1 = "left"
+                    lead_x_change1 = -10
+                    lead_y_change1 = 0
+                elif (event.key == pygame.K_d):
+                    direction1 = "right"
+                    lead_x_change1 = 10
+                    lead_y_change1 = 0
+                elif(event.key == pygame.K_w):
+                    direction1 = "up"
+                    lead_y_change1 = -10
+                    lead_x_change1 = 0
+                elif(event.key == pygame.K_s):
+                    direction1 = "down"
+                    lead_y_change1 = 10
+                    lead_x_change1 = 0
+     
+        if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):       #p1
+            gamedis.fill(black)
+            message_to_screen("P1 has died, P2 wins!", white, 400, 300)
+            pygame.display.update()
+            time.sleep(2)
+            gameOver = True
+
+        if (lead_x1 >= display_width or lead_x1 < 0 or lead_y1 >= display_height or lead_y1 < 0):       #p2
+            gamedis.fill(black)
+            message_to_screen("P2 has died, P1 wins!", white, 400, 300)
+            pygame.display.update()
+            time.sleep(2)
+            gameOver = True
+            
+            
+            
+        lead_x += lead_x_change         #p1
+        lead_y += lead_y_change
+
+        lead_x1 += lead_x_change1       #p2
+        lead_y1 += lead_y_change1
+        
+        gamedis.fill(white) 
+        gamedis.blit(img3, [randAppleX, randAppleY])
+
+        snakehead = []                  #p1
+        snakehead.append(lead_x)
+        snakehead.append(lead_y)
+        snakelist.append(snakehead)
+
+        snakehead1 = []                 #p2
+        snakehead1.append(lead_x1)
+        snakehead1.append(lead_y1)
+        snakelist1.append(snakehead1)
+
+        if (len(snakelist) > snakelength): #p1
+            del snakelist[0]
+
+        if (len(snakelist1) > snakelength1): #p2
+            del snakelist1[0]
+
+
+        for segment in snakelist1:
+            if (snakehead == snakehead1 or snakehead == segment):
+                if (snakelist > snakelist1):
+                    gamedis.fill(black)
+                    message_to_screen("P2 has died, P1 wins!", white, 400, 300)
+                    pygame.display.update()
+                    time.sleep(2)
+                    gameOver = True
+                elif (snakelist < snakelist1):
+                    gamedis.fill(black)
+                    message_to_screen("P1 has died, P2 wins!", white, 400, 300)
+                    pygame.display.update()
+                    time.sleep(2)
+                    gameOver = True
+
+        for segment in snakelist:
+            if (snakehead1 == snakehead or snakehead1 == segment):
+                if (snakelist > snakelist1):
+                    gamedis.fill(black)
+                    message_to_screen("P2 has died, P1 wins!", white, 400, 300)
+                    pygame.display.update()
+                    time.sleep(2)
+                    gameOver = True
+                elif (snakelist < snakelist1):
+                    gamedis.fill(black)
+                    message_to_screen("P1 has died, P2 wins!", white, 400, 300)
+                    pygame.display.update()
+                    time.sleep(2)
+                    gameOver = True
+
+
+
+
+
+##        for eachSegment in snakelist1[:-1]: #p1
+##            if (eachSegment == snakelist1):
+##                gamedis.fill(black)
+##                if (snakelist > snakelist1):
+##                    message_to_screen("P2 has died, P1 wins!", white)
+##                elif (snakelist < snakelist1):
+##                    message_to_screen("P1 has died, P2 wins!", white)
+##                pygame.display.update()
+##                time.sleep(2)
+##                gameOver = True
+##
+##
+##        for eachSegment1 in snakelist[:-1]: #p2
+##            if (eachSegment1 == snakelist):
+##                gamedis.fill(black)
+##                if (snakelist > snakelist1):
+##                    message_to_screen("P2 has died, P1 wins!", white)
+##                elif (snakelist < snakelist1):
+##                    message_to_screen("P1 has died, P2 wins!", white)
+##                pygame.display.update()
+##                time.sleep(2)
+##                gameOver = True
+
+        snake(block_size, snakelist)
+        snake1(block_size, snakelist1)
+         
+        pygame.display.update()
+
+        if (lead_x == randAppleX and lead_y == randAppleY):
+            randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0       #p1
+            randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
+            snakelength += 1
+            score += 1
+            p1speed += 1
+            
+
+        if (lead_x1 == randAppleX and lead_y1 == randAppleY):
+            randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0       #p2
+            randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
+            snakelength1 += 1
+            score1 += 1
+            p2speed += 1
+            
+
+        txtScore = str(score)
+        screen_text = font.render("P1 Score: ", True , green)       #p1
+        gamedis.blit(screen_text, [10, 10 ])
+        screen_text = font.render(txtScore, True , green)
+        gamedis.blit(screen_text, [50, 50])
+        pygame.display.update()
+
+        txtScore1 = str(score1)
+        screen_text = font.render("P2 Score: ", True , blue)       #p2
+        gamedis.blit(screen_text, [10, 500 ])
+        screen_text = font.render(txtScore1, True , blue)
+        gamedis.blit(screen_text, [50, 550])
+        pygame.display.update()
+
+        clock.tick(FPS)
+
+
+
+    pygame.quit()
+    quit()
+
+gameLoop()
+
