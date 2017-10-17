@@ -12,7 +12,7 @@ darkgreen = (0,155,0)
 red = (255,0,0)
 blue = (0,0,255)
 
-display_width = 800
+display_width = 800 
 display_height = 600
 
 gamedis = pygame.display.set_mode((display_width,display_height))
@@ -129,7 +129,7 @@ def gameLoop():
     
     p1speed = 10
     p2speed = 10
-    FPS = 30
+    FPS = 60
     score = 0
     score1 = 0
     gameOver = False
@@ -188,7 +188,7 @@ def gameLoop():
                     mGameExit = True
 
 
-    while not aiExit:
+    while not aiExit: ################### AI ###############################
         FPS =  60
         while (gameOver == True):
 
@@ -290,7 +290,7 @@ def gameLoop():
 
 
     
-    while (not sGameExit):
+    while (not sGameExit): ############################# SINGLEPLAYER ###################################
 
 
         while (gameOver == True):
@@ -317,19 +317,19 @@ def gameLoop():
 
             if (event.type == pygame.KEYDOWN):
                 if (event.key == pygame.K_LEFT):
-                    lead_x_change = -block_size
+                    lead_x_change = -5
                     lead_y_change = 0
                     direction = "left"
                 elif (event.key == pygame.K_RIGHT):
-                    lead_x_change = block_size
+                    lead_x_change = 5
                     lead_y_change = 0
                     direction = "right"
                 elif(event.key == pygame.K_UP):
-                    lead_y_change = -block_size
+                    lead_y_change = -5
                     lead_x_change = 0
                     direction = "up"
                 elif(event.key == pygame.K_DOWN):
-                    lead_y_change = block_size
+                    lead_y_change = 5
                     lead_x_change = 0
                     direction = "down"
                 elif(event.key == pygame.K_SPACE):
@@ -362,13 +362,13 @@ def gameLoop():
          
         pygame.display.update()
 
-        if (lead_x == randAppleX and lead_y == randAppleY):
+        if ((lead_x > randAppleX-15 and lead_x < randAppleX+15) and (lead_y > randAppleY-15 and lead_y < randAppleY+15)):
             
             randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
             randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
-            snakelength += 1
-            score += 1
-            FPS += 1
+            snakelength += 10
+            score += 10
+            FPS += 10
             
 
         txtScore = str(score)
@@ -381,7 +381,7 @@ def gameLoop():
         clock.tick(FPS)
         
 
-    while (not mGameExit): ###############################################################
+    while (not mGameExit): ############################ MULTIPLAYER ###################################
         
         while (gameOver == True):
             gamedis.fill(white)
@@ -404,36 +404,36 @@ def gameLoop():
             if (event.type == pygame.KEYDOWN):     #p1
                 if (event.key == pygame.K_LEFT):
                     direction = "left"
-                    lead_x_change = -10
+                    lead_x_change = -5
                     lead_y_change = 0
                 elif (event.key == pygame.K_RIGHT):
                     direction = "right"
-                    lead_x_change = 10
+                    lead_x_change = 5
                     lead_y_change = 0
                 elif(event.key == pygame.K_UP):
                     direction = "up"
-                    lead_y_change = -10
+                    lead_y_change = -5
                     lead_x_change = 0
                 elif(event.key == pygame.K_DOWN):
                     direction = "down"
-                    lead_y_change = 10
+                    lead_y_change = 5
                     lead_x_change = 0
 
                 elif (event.key == pygame.K_a): #p2
                     direction1 = "left"
-                    lead_x_change1 = -10
+                    lead_x_change1 = -5
                     lead_y_change1 = 0
                 elif (event.key == pygame.K_d):
                     direction1 = "right"
-                    lead_x_change1 = 10
+                    lead_x_change1 = 5
                     lead_y_change1 = 0
                 elif(event.key == pygame.K_w):
                     direction1 = "up"
-                    lead_y_change1 = -10
+                    lead_y_change1 = -5
                     lead_x_change1 = 0
                 elif(event.key == pygame.K_s):
                     direction1 = "down"
-                    lead_y_change1 = 10
+                    lead_y_change1 = 5
                     lead_x_change1 = 0
      
         if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):       #p1
@@ -480,13 +480,13 @@ def gameLoop():
 
         for segment in snakelist1:
             if (snakehead == snakehead1 or snakehead == segment):
-                if (snakelist > snakelist1):
+                if (len(snakelist) > len(snakelist1)):
                     gamedis.fill(black)
                     message_to_screen("P2 has died, P1 wins!", white, 400, 300)
                     pygame.display.update()
                     time.sleep(2)
                     gameOver = True
-                elif (snakelist < snakelist1):
+                elif (len(snakelist) < len(snakelist1)):
                     gamedis.fill(black)
                     message_to_screen("P1 has died, P2 wins!", white, 400, 300)
                     pygame.display.update()
@@ -495,13 +495,13 @@ def gameLoop():
 
         for segment in snakelist:
             if (snakehead1 == snakehead or snakehead1 == segment):
-                if (snakelist > snakelist1):
+                if (len(snakelist) > len(snakelist1)):
                     gamedis.fill(black)
                     message_to_screen("P2 has died, P1 wins!", white, 400, 300)
                     pygame.display.update()
                     time.sleep(2)
                     gameOver = True
-                elif (snakelist < snakelist1):
+                elif (len(snakelist) < len(snakelist1)):
                     gamedis.fill(black)
                     message_to_screen("P1 has died, P2 wins!", white, 400, 300)
                     pygame.display.update()
@@ -509,51 +509,25 @@ def gameLoop():
                     gameOver = True
 
 
-
-
-
-##        for eachSegment in snakelist1[:-1]: #p1
-##            if (eachSegment == snakelist1):
-##                gamedis.fill(black)
-##                if (snakelist > snakelist1):
-##                    message_to_screen("P2 has died, P1 wins!", white)
-##                elif (snakelist < snakelist1):
-##                    message_to_screen("P1 has died, P2 wins!", white)
-##                pygame.display.update()
-##                time.sleep(2)
-##                gameOver = True
-##
-##
-##        for eachSegment1 in snakelist[:-1]: #p2
-##            if (eachSegment1 == snakelist):
-##                gamedis.fill(black)
-##                if (snakelist > snakelist1):
-##                    message_to_screen("P2 has died, P1 wins!", white)
-##                elif (snakelist < snakelist1):
-##                    message_to_screen("P1 has died, P2 wins!", white)
-##                pygame.display.update()
-##                time.sleep(2)
-##                gameOver = True
-
         snake(block_size, snakelist)
         snake1(block_size, snakelist1)
          
         pygame.display.update()
 
-        if (lead_x == randAppleX and lead_y == randAppleY):
+        if ((lead_x > randAppleX-15 and lead_x < randAppleX+15) and (lead_y > randAppleY-15 and lead_y < randAppleY+15)):
             randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0       #p1
             randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
-            snakelength += 1
-            score += 1
-            p1speed += 1
+            snakelength += 10
+            score += 10
+            FPS += 5
             
 
-        if (lead_x1 == randAppleX and lead_y1 == randAppleY):
+        if ((lead_x1 > randAppleX-15 and lead_x1 < randAppleX+15) and (lead_y1 > randAppleY-15 and lead_y1 < randAppleY+15)):
             randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0       #p2
             randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
-            snakelength1 += 1
-            score1 += 1
-            p2speed += 1
+            snakelength1 += 10
+            score1 += 10
+            FPS += 5
             
 
         txtScore = str(score)
@@ -578,4 +552,3 @@ def gameLoop():
     quit()
 
 gameLoop()
-
