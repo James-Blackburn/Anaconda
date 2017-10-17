@@ -1,0 +1,12 @@
+Update 0.1
+----------
+- changed apple collision detection algorithm to make it easier to collect fuit
+- made the player grow 10x more when an apple is collected
+- changed the multiplayer player collision formula, so the biggest snake wins
+- made the FPS speed up when fruit is collected
+----------
+Future updates:
+- ability to play against AI
+- menu overhaul
+- sprite overhaul
+- general stability
