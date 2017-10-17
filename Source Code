@@ -1,4 +1,4 @@
-#################### VERSION 0.1 #######################
+##############  VERSION 0.2 ##############
 import pygame
 import time
 import random
@@ -273,9 +273,10 @@ def gameLoop():
             
             randAppleX = round(random.randrange(0, display_width - block_size)/10.0)*10.0
             randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
-            snakelength += 1
-            score += 1
-            FPS += 1
+            snakelength += 5
+            score += 5
+            FPS += 10
+
             
 
         txtScore = str(score)
@@ -369,7 +370,7 @@ def gameLoop():
             randAppleY = round(random.randrange(0, display_height - block_size)/10.0)*10.0
             snakelength += 10
             score += 10
-            FPS += 10
+            FPS += 5
             
 
         txtScore = str(score)
