@@ -5,8 +5,14 @@ Update 0.1
 - changed the multiplayer player collision formula, so the biggest snake wins
 - made the FPS speed up when fruit is collected
 - Smoother gameplay in singleplayer and multiplayer, due to steamlining of code
+
+Update 0.2
 ----------
+- halved the rate in which the FPS increased
+- applied player mechanics to the AI
+
 Future updates:
+---------------
 - ability to play against AI
 - menu overhaul
 - sprite overhaul
