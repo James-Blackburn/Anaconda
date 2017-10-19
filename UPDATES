@@ -11,10 +11,8 @@ Update 0.2
 - halved the rate in which the FPS increased
 - applied player mechanics to the AI
 
-Future updates:
----------------
-- ability to play against AI
-- menu overhaul
-- sprite overhaul
-- general stability
-- display score when you die
+Update 0.3
+----------
+- displays score when you die
+- menu has been overhauled to a button system
+- soundtrack does not restart when you go into the menu
