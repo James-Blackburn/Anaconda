@@ -1,10 +1,14 @@
-##############  VERSION 0.2 ##############
+################# VERSION 0.3 ####################
 import pygame
 import time
 import random
+import datetime
 
 x = pygame.init()
 print(x)
+
+pygame.mixer.music.load('snake_music.mp3')
+pygame.mixer.music.play(-1)
 
 white = (255,255,255)
 black = (0,0,0)
@@ -91,23 +95,27 @@ def pause():
                 pygame.quit()
                 quit()
             if (event.type == pygame.KEYDOWN):
-                if (event.key == pygame.K_z):
+                if (event.key == pygame.K_SPACE):
                     paused = False
         gamedis.fill(white)
         message_to_screen_large("PAUSED", black, 400, 300)
         pygame.display.update()
         clock.tick(5)
 
-def text_objects(msg,colour):
+def text_objects(msg,colour,size):
+    font = pygame.font.SysFont(None, size)
     textSurface = font.render(msg, True, colour)
     return textSurface, textSurface.get_rect()
 
-def message_to_screen(msg, colour, x, y):
-    textSurf, textRect = text_objects(msg,colour)
+def text_to_button(msg,colour,buttonx,buttony,buttonwidth,buttonheight,size):
+    textSurf, textRect = text_objects(msg,colour,size)
+    textRect.center = ((buttonx+(buttonwidth/2)), buttony+(buttonheight/2))
+    gamedis.blit(textSurf, textRect)
+
+def message_to_screen(msg, colour, x, y,size):
+    textSurf, textRect = text_objects(msg,colour,size)
     textRect.center = x,y
     gamedis.blit(textSurf, textRect)
-    #screen_text = font.render(msg, True , colour)
-    #gamedis.blit(screen_text, [display_width/2, display_height/2])
 
 def text_objects_large(msg,colour):
     textSurface = font1.render(msg, True, colour)
@@ -118,15 +126,66 @@ def message_to_screen_large(msg, colour, x, y):
     textRect.center = x,y
     gamedis.blit(textSurf, textRect)
 
-                
+def writeScore(score):
+    now = datetime.datetime.now()
+    now = str(now)
+    f = open("Scores.txt","a")
+    f.write("Singleplayer: ")
+    f.write(str(score))
+    f.write("\t")
+    f.write("Date: ")
+    f.write(now)
+    f.write('\n')
+    f.close()
 
-def gameLoop():
+def displayScore():
+    f = open("Scores.txt","r")
+    print(f.read())
+
+def button(text, x, y, width, height, inactive, active, action = None):
+        cur = pygame.mouse.get_pos()
+        click = pygame.mouse.get_pressed()
+        if x + width > cur[0] > x and y + height > cur[1] > y:
+            pygame.draw.rect(gamedis, inactive, (x,y,width,height))
+            if click[0] == 1 and action != None:
+                if action == "quit":
+                    pygame.quit()
+                    quit()
+
+                if action == "ai":
+                    aiExit = False
+                    sGameExit = True
+                    mGameExit = True
+                    gameLoop(aiExit,sGameExit,mGameExit)
+
+                if action == "score":
+                    displayScore()
+
+                if action == "singleplayer":
+                    aiExit = True
+                    sGameExit = True
+                    mGameExit = False
+                    gameLoop(aiExit,sGameExit,mGameExit)
+
+                if action == "multiplayer":
+                    aiExit = True
+                    sGameExit = False
+                    mGameExit = True
+                    gameLoop(aiExit,sGameExit,mGameExit)
+        else:
+            pygame.draw.rect(gamedis, active, (x,y,width,height))
+        text_to_button(text,black,x,y,width,height,25)
+
+
+
+
+
+
+def gameLoop(aiExit,mGameExit,sGameExit): ############# Game ###############
 
     global direction
     global direction1
     
-    pygame.mixer.music.load('snake_music.mp3')
-    pygame.mixer.music.play(-1)
     
     p1speed = 10
     p2speed = 10
@@ -156,38 +215,6 @@ def gameLoop():
     snakelist1 = []   #p2
     snakelength1 = 1
 
-    menuExit = False
-
-    while (menuExit == False):
-        gamedis.fill(white)
-        message_to_screen_large("Anaconda", green, 400, 200)
-        message_to_screen("""Singleplayer (1)      AI (2)      Multiplayer (3)      Quit(4)""", black, 400, 400)
-
-        pygame.display.update()
-        for event in pygame.event.get():
-            if (event.type == pygame.QUIT):
-                pygame.quit()
-                quit()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_4:
-                    pygame.quit()
-                    quit()
-                elif event.key == pygame.K_3:
-                    aiExit = True
-                    mGameExit = False
-                    menuExit = True
-                    sGameExit = True
-                elif event.key == pygame.K_2:
-                    aiExit = False
-                    mGameExit = True
-                    menuExit = True
-                    sGameExit = True
-                elif event.key == pygame.K_1:
-                    aiExit = True
-                    sGameExit = False
-                    menuExit = True
-                    mGameExit = True
-
 
     while not aiExit: ################### AI ###############################
         FPS =  60
@@ -195,7 +222,7 @@ def gameLoop():
 
             gamedis.fill(white)
             message_to_screen_large("Game Over", red, 400, 200)
-            message_to_screen("Press C to restart or Q to exit", red, 400, 300)
+            message_to_screen("Press C to restart or Q to exit", red, 400, 300,25)
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -204,10 +231,10 @@ def gameLoop():
                     quit()
                 if (event.type == pygame.KEYDOWN):
                     if (event.key == pygame.K_q):
-                        sGameExit = True
-                        gameOver = False
+                        pygame.quit()
+                        quit()
                     if(event.key == pygame.K_c):
-                        gameLoop()
+                        menu()
         
 
         if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):
@@ -292,25 +319,29 @@ def gameLoop():
 
 
     
-    while (not sGameExit): ############################# SINGLEPLAYER ###################################
+    while not sGameExit: ############################# SINGLEPLAYER ###################################
 
 
         while (gameOver == True):
             gamedis.fill(white)
             message_to_screen_large("Game Over", red, 400, 200)
-            message_to_screen("Press C to restart or Q to exit", red, 400, 300)
+            yourScore = "YOUR SCORE:  "+str(score)
+            message_to_screen_large(yourScore,green,400,300)
+            message_to_screen("Press C to restart or Q to exit", red, 400, 400,25)
             pygame.display.update()
 
             for event in pygame.event.get():
                 if (event.type == pygame.QUIT):
+                    writeScore(score)
                     pygame.quit()
                     quit()
                 if (event.type == pygame.KEYDOWN):
+                    writeScore(score)
                     if (event.key == pygame.K_q):
-                        sGameExit = True
-                        gameOver = False
+                        pygame.quit()
+                        quit()
                     if(event.key == pygame.K_c):
-                        gameLoop()
+                        menu()
                     
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
@@ -319,21 +350,25 @@ def gameLoop():
 
             if (event.type == pygame.KEYDOWN):
                 if (event.key == pygame.K_LEFT):
-                    lead_x_change = -5
-                    lead_y_change = 0
-                    direction = "left"
+                    if direction!= "right": # prevents the player from going back on themselves
+                        lead_x_change = -5
+                        lead_y_change = 0
+                        direction = "left"
                 elif (event.key == pygame.K_RIGHT):
-                    lead_x_change = 5
-                    lead_y_change = 0
-                    direction = "right"
+                    if direction!= "left":
+                        lead_x_change = 5
+                        lead_y_change = 0
+                        direction = "right"
                 elif(event.key == pygame.K_UP):
-                    lead_y_change = -5
-                    lead_x_change = 0
-                    direction = "up"
+                    if direction!="down":
+                        lead_y_change = -5
+                        lead_x_change = 0
+                        direction = "up"
                 elif(event.key == pygame.K_DOWN):
-                    lead_y_change = 5
-                    lead_x_change = 0
-                    direction = "down"
+                    if direction!="up":
+                        lead_y_change = 5
+                        lead_x_change = 0
+                        direction = "down"
                 elif(event.key == pygame.K_SPACE):
                     pause()
                 
@@ -381,23 +416,28 @@ def gameLoop():
         pygame.display.update()
 
         clock.tick(FPS)
+
         
 
-    while (not mGameExit): ############################ MULTIPLAYER ###################################
+    while not mGameExit: ############################ MULTIPLAYER ###################################
         
-        while (gameOver == True):
+        while (gameOver == True): # end game screen
             gamedis.fill(white)
             message_to_screen_large("Game Over", red, 400, 200)
-            message_to_screen("Press C to restart or Q to exit", red, 400, 300)
-            pygame.display.update()
+            p1Score = "PLAYER1 SCORE:  "+str(score)
+            p2Score = "PLAYER2 SCORE:  "+str(score1)
+            message_to_screen_large(p1Score,green,400,300)
+            message_to_screen_large(p2Score,blue,400,400)
+            message_to_screen("Press C to restart or Q to exit", red, 400, 500,25)
+            pygame.display.update() #
 
             for event in pygame.event.get():
                 if (event.type == pygame.KEYDOWN):
                     if (event.key == pygame.K_q):
-                        mGameExit = True
-                        gameOver = False
+                        pygame.quit()
+                        quit()
                     if(event.key == pygame.K_c):
-                        gameLoop()
+                        menu()
                     
         for event in pygame.event.get():
             if (event.type == pygame.QUIT):
@@ -405,52 +445,68 @@ def gameLoop():
 
             if (event.type == pygame.KEYDOWN):     #p1
                 if (event.key == pygame.K_LEFT):
-                    direction = "left"
-                    lead_x_change = -5
-                    lead_y_change = 0
+                    if direction!="right": # prevents the player from going back on themselves
+                        direction = "left"
+                        lead_x_change = -5
+                        lead_y_change = 0
                 elif (event.key == pygame.K_RIGHT):
-                    direction = "right"
-                    lead_x_change = 5
-                    lead_y_change = 0
+                    if direction!="left":
+                        direction = "right"
+                        lead_x_change = 5
+                        lead_y_change = 0
                 elif(event.key == pygame.K_UP):
-                    direction = "up"
-                    lead_y_change = -5
-                    lead_x_change = 0
+                    if direction!="down":
+                        direction = "up"
+                        lead_y_change = -5
+                        lead_x_change = 0
                 elif(event.key == pygame.K_DOWN):
-                    direction = "down"
-                    lead_y_change = 5
-                    lead_x_change = 0
+                    if direction!="up":
+                        direction = "down"
+                        lead_y_change = 5
+                        lead_x_change = 0
 
                 elif (event.key == pygame.K_a): #p2
-                    direction1 = "left"
-                    lead_x_change1 = -5
-                    lead_y_change1 = 0
+                    if direction1!="right":
+                        direction1 = "left"
+                        lead_x_change1 = -5
+                        lead_y_change1 = 0
                 elif (event.key == pygame.K_d):
-                    direction1 = "right"
-                    lead_x_change1 = 5
-                    lead_y_change1 = 0
+                    if direction1!="left":
+                        direction1 = "right"
+                        lead_x_change1 = 5
+                        lead_y_change1 = 0
                 elif(event.key == pygame.K_w):
-                    direction1 = "up"
-                    lead_y_change1 = -5
-                    lead_x_change1 = 0
+                    if direction1!="down":
+                        direction1 = "up"
+                        lead_y_change1 = -5
+                        lead_x_change1 = 0
                 elif(event.key == pygame.K_s):
-                    direction1 = "down"
-                    lead_y_change1 = 5
-                    lead_x_change1 = 0
+                    if direction1!="up":
+                        direction1 = "down"
+                        lead_y_change1 = 5
+                        lead_x_change1 = 0
      
         if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):       #p1
             gamedis.fill(black)
-            message_to_screen("P1 has died, P2 wins!", white, 400, 300)
+            message_to_screen("P1 has died, P2 wins!", white, 400, 300,25)
             pygame.display.update()
             time.sleep(2)
             gameOver = True
 
         if (lead_x1 >= display_width or lead_x1 < 0 or lead_y1 >= display_height or lead_y1 < 0):       #p2
             gamedis.fill(black)
-            message_to_screen("P2 has died, P1 wins!", white, 400, 300)
+            message_to_screen("P2 has died, P1 wins!", white, 400, 300,25)
             pygame.display.update()
             time.sleep(2)
             gameOver = True
+
+        for eachSegment in snakelist[:-1]:
+            if (eachSegment == snakehead):
+                gameOver = True
+
+        for eachSegment in snakelist1[:-1]:
+            if (eachSegment == snakehead1):
+                gameOver = True
             
             
             
@@ -484,13 +540,13 @@ def gameLoop():
             if (snakehead == snakehead1 or snakehead == segment):
                 if (len(snakelist) > len(snakelist1)):
                     gamedis.fill(black)
-                    message_to_screen("P2 has died, P1 wins!", white, 400, 300)
+                    message_to_screen("P2 has died, P1 wins!", white, 400, 300,25)
                     pygame.display.update()
                     time.sleep(2)
                     gameOver = True
                 elif (len(snakelist) < len(snakelist1)):
                     gamedis.fill(black)
-                    message_to_screen("P1 has died, P2 wins!", white, 400, 300)
+                    message_to_screen("P1 has died, P2 wins!", white, 400, 300,25)
                     pygame.display.update()
                     time.sleep(2)
                     gameOver = True
@@ -499,13 +555,13 @@ def gameLoop():
             if (snakehead1 == snakehead or snakehead1 == segment):
                 if (len(snakelist) > len(snakelist1)):
                     gamedis.fill(black)
-                    message_to_screen("P2 has died, P1 wins!", white, 400, 300)
+                    message_to_screen("P2 has died, P1 wins!", white, 400, 300,25)
                     pygame.display.update()
                     time.sleep(2)
                     gameOver = True
                 elif (len(snakelist) < len(snakelist1)):
                     gamedis.fill(black)
-                    message_to_screen("P1 has died, P2 wins!", white, 400, 300)
+                    message_to_screen("P1 has died, P2 wins!", white, 400, 300,25)
                     pygame.display.update()
                     time.sleep(2)
                     gameOver = True
@@ -553,4 +609,21 @@ def gameLoop():
     pygame.quit()
     quit()
 
-gameLoop()
+
+def menu():
+        while True:
+            gamedis.fill(white)
+            message_to_screen_large("Anaconda",green,400,100)
+            singlePlayer = button("Singleplayer",100,300,110,50,red,green,"singleplayer")
+            multiPlayer = button("Multiplayer",220,300,110,50,red,green,"multiplayer")
+            ai = button("AI",340,300,110,50,red,green,"ai")
+            score =  button("Score",460,300,110,50,red,green,"score")
+            terminate =   button("Quit",580,300,110,50,red,green,"quit")
+            
+            pygame.display.update()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+
+menu()
