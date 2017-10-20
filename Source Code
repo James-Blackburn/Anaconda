@@ -400,30 +400,30 @@ def gameLoop(aiExit,mGameExit,sGameExit,walls,classic): ############# Game #####
 
             if (event.type == pygame.KEYDOWN):
                 if (event.key == pygame.K_LEFT):
-                    if classic==False:
-                            snakelength+=100000
                     if direction!= "right": # prevents the player from going back on themselves
+                        if classic==False:
+                            snakelength+=100000
                         lead_x_change = -5
                         lead_y_change = 0
                         direction = "left"
                 elif (event.key == pygame.K_RIGHT):
-                    if classic==False:
-                            snakelength+=100000
                     if direction!= "left":
+                        if classic==False:
+                            snakelength+=100000
                         lead_x_change = 5
                         lead_y_change = 0
                         direction = "right"
                 elif(event.key == pygame.K_UP):
-                    if classic==False:
-                            snakelength+=100000
                     if direction!="down":
+                        if classic==False:
+                            snakelength+=100000
                         lead_y_change = -5
                         lead_x_change = 0
                         direction = "up"
                 elif(event.key == pygame.K_DOWN):
-                    if classic==False:
-                            snakelength+=100000
                     if direction!="up":
+                        if classic==False:
+                            snakelength+=100000
                         lead_y_change = 5
                         lead_x_change = 0
                         direction = "down"
