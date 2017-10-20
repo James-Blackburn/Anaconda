@@ -1,4 +1,5 @@
-################# VERSION 0.3 ####################
+################# VERSION 0.4 #####################
+
 import pygame
 import time
 import random
@@ -17,7 +18,7 @@ darkgreen = (0,155,0)
 red = (255,0,0)
 blue = (0,0,255)
 
-display_width = 800 
+display_width = 800
 display_height = 600
 
 gamedis = pygame.display.set_mode((display_width,display_height))
@@ -156,7 +157,7 @@ def button(text, x, y, width, height, inactive, active, action = None):
                     aiExit = False
                     sGameExit = True
                     mGameExit = True
-                    gameLoop(aiExit,sGameExit,mGameExit)
+                    gameLoop(aiExit,sGameExit,mGameExit,False,False)
 
                 if action == "score":
                     displayScore()
@@ -165,23 +166,64 @@ def button(text, x, y, width, height, inactive, active, action = None):
                     aiExit = True
                     sGameExit = True
                     mGameExit = False
-                    gameLoop(aiExit,sGameExit,mGameExit)
+                    walls = settings()
+                    classic = modes()
+                    gameLoop(aiExit,sGameExit,mGameExit,walls,classic)
 
                 if action == "multiplayer":
                     aiExit = True
                     sGameExit = False
                     mGameExit = True
-                    gameLoop(aiExit,sGameExit,mGameExit)
+                    walls = settings()
+                    gameLoop(aiExit,sGameExit,mGameExit,walls,True)
         else:
             pygame.draw.rect(gamedis, active, (x,y,width,height))
         text_to_button(text,black,x,y,width,height,25)
 
+def settings():
+
+    while True:
+        gamedis.fill(white)
+        message_to_screen_large("Configuration", green, 400, 200)
+        message_to_screen("Walls [1]    No Walls [2]", black,390,300,40)
+        
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return True
+                elif event.key == pygame.K_2:
+                    return False
+        clock.tick(25)
+
+def modes():
+    while True:
+        gamedis.fill(white)
+        message_to_screen_large("Modes", green, 400,200)
+        message_to_screen("Classic [1]    Infinite [2]", black,390,300,40)
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return True
+                elif event.key == pygame.K_2:
+                    return False
+        clock.tick(25)
 
 
 
 
 
-def gameLoop(aiExit,mGameExit,sGameExit): ############# Game ###############
+
+def gameLoop(aiExit,mGameExit,sGameExit,walls,classic): ############# Game ###############
 
     global direction
     global direction1
@@ -235,6 +277,14 @@ def gameLoop(aiExit,mGameExit,sGameExit): ############# Game ###############
                         quit()
                     if(event.key == pygame.K_c):
                         menu()
+
+        for event in pygame.event.get():
+            if (event.type == pygame.QUIT):
+                pygame.quit()
+                quit()
+            if (event.type == pygame.KEYDOWN):
+                if (event.key == pygame.K_ESCAPE):
+                    menu()
         
 
         if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):
@@ -350,33 +400,53 @@ def gameLoop(aiExit,mGameExit,sGameExit): ############# Game ###############
 
             if (event.type == pygame.KEYDOWN):
                 if (event.key == pygame.K_LEFT):
+                    if classic==False:
+                            snakelength+=100000
                     if direction!= "right": # prevents the player from going back on themselves
                         lead_x_change = -5
                         lead_y_change = 0
                         direction = "left"
                 elif (event.key == pygame.K_RIGHT):
+                    if classic==False:
+                            snakelength+=100000
                     if direction!= "left":
                         lead_x_change = 5
                         lead_y_change = 0
                         direction = "right"
                 elif(event.key == pygame.K_UP):
+                    if classic==False:
+                            snakelength+=100000
                     if direction!="down":
                         lead_y_change = -5
                         lead_x_change = 0
                         direction = "up"
                 elif(event.key == pygame.K_DOWN):
+                    if classic==False:
+                            snakelength+=100000
                     if direction!="up":
                         lead_y_change = 5
                         lead_x_change = 0
                         direction = "down"
                 elif(event.key == pygame.K_SPACE):
                     pause()
+
+                elif(event.key == pygame.K_ESCAPE):
+                    menu()
                 
                     
                 
-     
-        if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):
-            gameOver = True
+        if walls==False:
+            if (lead_x >= display_width): # bounds are unlimitless
+                lead_x = 0
+            elif (lead_x <= 0):
+                lead_x = display_width
+            elif (lead_y >= display_height):
+                lead_y = 0
+            elif (lead_y <= 0):
+                lead_y = display_height
+        else:
+            if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0): # bounds are limited
+                gameOver = True
             
         lead_x += lead_x_change
         lead_y += lead_y_change
@@ -406,6 +476,7 @@ def gameLoop(aiExit,mGameExit,sGameExit): ############# Game ###############
             snakelength += 10
             score += 10
             FPS += 5
+
             
 
         txtScore = str(score)
@@ -485,20 +556,42 @@ def gameLoop(aiExit,mGameExit,sGameExit): ############# Game ###############
                         direction1 = "down"
                         lead_y_change1 = 5
                         lead_x_change1 = 0
-     
-        if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):       #p1
-            gamedis.fill(black)
-            message_to_screen("P1 has died, P2 wins!", white, 400, 300,25)
-            pygame.display.update()
-            time.sleep(2)
-            gameOver = True
+                elif(event.key == pygame.K_ESCAPE):
+                    menu()
 
-        if (lead_x1 >= display_width or lead_x1 < 0 or lead_y1 >= display_height or lead_y1 < 0):       #p2
-            gamedis.fill(black)
-            message_to_screen("P2 has died, P1 wins!", white, 400, 300,25)
-            pygame.display.update()
-            time.sleep(2)
-            gameOver = True
+        if walls==False:
+            if (lead_x >= display_width): # bounds are unlimitless
+                lead_x = 0
+            elif (lead_x <= 0):
+                lead_x = display_width
+            elif (lead_y >= display_height):
+                lead_y = 0
+            elif (lead_y <= 0):
+                lead_y = display_height
+
+            if (lead_x1 >= display_width): # bounds are unlimitless
+                lead_x1 = 0
+            elif (lead_x1 <= 0):
+                lead_x1 = display_width
+            elif (lead_y1 >= display_height):
+                lead_y1 = 0
+            elif (lead_y1 <= 0):
+                lead_y1 = display_height
+
+        else:
+            if (lead_x >= display_width or lead_x < 0 or lead_y >= display_height or lead_y < 0):       #p1
+                gamedis.fill(black)
+                message_to_screen("P1 has died, P2 wins!", white, 400, 300,25)
+                pygame.display.update()
+                time.sleep(2)
+                gameOver = True
+
+            if (lead_x1 >= display_width or lead_x1 < 0 or lead_y1 >= display_height or lead_y1 < 0):       #p2
+                gamedis.fill(black)
+                message_to_screen("P2 has died, P1 wins!", white, 400, 300,25)
+                pygame.display.update()
+                time.sleep(2)
+                gameOver = True
 
         for eachSegment in snakelist[:-1]:
             if (eachSegment == snakehead):
