@@ -1,4 +1,4 @@
-Update 0.1
+Update 0.1 (major)
 ----------
 - changed apple collision detection algorithm to make it easier to collect fuit
 - made the player grow 10x more when an apple is collected
@@ -6,13 +6,22 @@ Update 0.1
 - made the FPS speed up when fruit is collected
 - Smoother gameplay in singleplayer and multiplayer, due to steamlining of code
 
-Update 0.2
+Update 0.2 (minor)
 ----------
 - halved the rate in which the FPS increased
 - applied player mechanics to the AI
 
-Update 0.3
+Update 0.3 (minor)
 ----------
 - displays score when you die
 - menu has been overhauled to a button system
 - soundtrack does not restart when you go into the menu
+
+Update 0.4 (major)
+----------
+- added the choice to choose between a walled map and a non-walled map
+- added another game mode to singleplayer, infinite - where your snake always grows
+- the escape button now exits to the main menu
+- fixed major issues with the pause button, now fully works
+- fixed bugs with the AI not closing
+- patched a multitude of other minor bugs
